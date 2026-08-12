@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ImageDown } from "lucide-react";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import type { LineMaterial } from "three/addons/lines/LineMaterial.js";
@@ -197,6 +198,55 @@ export default function Board3D({ state, selectedId, lang }: Board3DProps) {
     presetActiveRef.current = true;
   };
 
+  /** Captura a vista 3D atual em PNG (2×, fundo escuro sólido) e baixa. */
+  const handleExportPng = () => {
+    const handle = handleRef.current;
+    if (!handle) return;
+    const { renderer, scene, camera } = handle;
+    const canvas = renderer.domElement;
+    const pr = renderer.getPixelRatio();
+    const w = canvas.width;
+    const h = canvas.height;
+    if (w === 0 || h === 0) return;
+    const cssW = w / pr;
+    const cssH = h / pr;
+
+    // renderiza num buffer 2× (limitado a ~4096 px no maior lado) para mais nitidez.
+    // render + toDataURL no mesmo task: o buffer ainda contém o frame.
+    // setSize aplica o pixelRatio, então capturamos com pixelRatio=1 para o buffer
+    // ficar exatamente tw×th; o finally restaura buffer, pixelRatio, aspect,
+    // resoluções das LineMaterials e a clear color — em qualquer cenário (try/finally).
+    const scale = Math.min(2, 4096 / Math.max(cssW, cssH));
+    const tw = Math.max(1, Math.round(cssW * scale));
+    const th = Math.max(1, Math.round(cssH * scale));
+    const savedRes = handle.materials.map((m) => m.resolution.clone());
+    renderer.setClearColor(0x0a0f1c, 1);
+    let url: string;
+    try {
+      renderer.setPixelRatio(1);
+      renderer.setSize(tw, th, false);
+      camera.aspect = tw / th;
+      camera.updateProjectionMatrix();
+      for (const m of handle.materials) m.resolution.set(tw, th);
+      renderer.render(scene, camera);
+      url = canvas.toDataURL("image/png");
+    } finally {
+      renderer.setPixelRatio(pr);
+      renderer.setSize(cssW, cssH, false);
+      camera.aspect = cssW / cssH;
+      camera.updateProjectionMatrix();
+      handle.materials.forEach((m, i) => m.resolution.copy(savedRes[i]));
+      renderer.setClearColor(0x000000, 0);
+    }
+    if (!url.startsWith("data:image/png")) return;
+
+    const base = (state.title || t.defaultFilename).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${base || t.defaultFilename}-3d.png`;
+    a.click();
+  };
+
   const isEmpty = state.players.length === 0 && state.shapes.length === 0;
   const presetLabels: Record<CameraPresetId, string> = {
     default: t.presetDefault,
@@ -221,6 +271,13 @@ export default function Board3D({ state, selectedId, lang }: Board3DProps) {
               </button>
             ))}
           </div>
+          <button
+            className="board3d-export"
+            onClick={handleExportPng}
+            title={t.exportPng3dTitle}
+          >
+            <ImageDown size={14} /> {t.exportPng3d}
+          </button>
           <div className="board3d-hint">{t.view3dHintOrbit}</div>
         </div>
       </div>

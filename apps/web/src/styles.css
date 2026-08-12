@@ -1000,6 +1000,32 @@ input[type="range"] {
   box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
 }
 
+.board3d-export {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  border: 1px solid transparent;
+  color: #04120a;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+  font-family: inherit;
+}
+
+.board3d-export:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+.board3d-export:active {
+  transform: translateY(0);
+}
+
 .board3d-hint {
   font-size: 11px;
   color: var(--text-dim);

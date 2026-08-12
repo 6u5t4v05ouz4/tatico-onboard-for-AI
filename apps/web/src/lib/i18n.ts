@@ -94,6 +94,8 @@ export interface Dict {
   presetSide: string;
   presetGoal: string;
   view3dHintOrbit: string;
+  exportPng3d: string;
+  exportPng3dTitle: string;
   // sidebar — MCP
   panelMcp: string;
   mcpConnected: string;
@@ -208,6 +210,8 @@ const pt: Dict = {
   presetSide: "Lateral",
   presetGoal: "Atrás do gol",
   view3dHintOrbit: "Arraste para orbitar · Scroll para zoom · Botão do meio ou direito arrasta para mover",
+  exportPng3d: "Exportar PNG 3D",
+  exportPng3dTitle: "Baixar a vista 3D atual em PNG de alta resolução",
   colors: {
     red: "Vermelho",
     blue: "Azul",
@@ -347,6 +351,8 @@ const en: Dict = {
   presetSide: "Side",
   presetGoal: "Behind goal",
   view3dHintOrbit: "Drag to orbit · Scroll to zoom · Middle or right-drag to pan",
+  exportPng3d: "Export 3D PNG",
+  exportPng3dTitle: "Download the current 3D view as a high-resolution PNG",
   colors: {
     red: "Red",
     blue: "Blue",
