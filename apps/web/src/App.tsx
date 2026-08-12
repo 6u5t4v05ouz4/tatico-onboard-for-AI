@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, Download, FilePlus2, ImageDown, Loader2, Wifi, WifiOff } from "lucide-react";
 import { BoardController, BOARD_PAD } from "@tattico/core";
 import type { BoardState, Side } from "@tattico/core";
 import Board, { type ToolId } from "./components/Board";
-import Toolbar from "./components/Toolbar";
+import Toolbar, { type ViewMode } from "./components/Toolbar";
 import Sidebar from "./components/Sidebar";
 import { McpClient, type McpStatus, type TacticMeta } from "./lib/mcp";
 import { downloadPng, downloadText, svgFor } from "./lib/export";
@@ -12,6 +12,9 @@ import { LANGS, LANG_STORAGE_KEY, loadLang, ui, type Lang } from "./lib/i18n";
 const LS_KEY = "tattico:board:v1";
 const LS_TACTICS = "tattico:tactics:v1";
 const DEFAULT_MCP_URL = "http://localhost:3001";
+
+// chunk 3D carregado sob demanda (three.js fica fora do bundle inicial)
+const Board3D = lazy(() => import("./components/Board3D"));
 
 const DOC_TITLES: Record<Lang, string> = {
   pt: "TATICO — Quadro Tático 11v11",
@@ -26,6 +29,7 @@ export default function App() {
   const [controller] = useState(() => new BoardController());
   const [, forceRender] = useState(0);
   const [lang, setLang] = useState<Lang>(loadLang);
+  const [viewMode, setViewMode] = useState<ViewMode>("2d");
   const [tool, setTool] = useState<ToolId>("select");
   const [color, setColor] = useState("#ffffff");
   const [side, setSide] = useState<Side>("home");
@@ -312,21 +316,35 @@ export default function App() {
             zoom={zoom}
             setZoom={setZoom}
             onFit={onFit}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
           />
-          <Board
-            state={state}
-            controller={controller}
-            tool={tool}
-            color={color}
-            side={side}
-            selectedId={selectedId}
-            onSelect={setSelectedId}
-            zoom={zoom}
-            pan={pan}
-            setZoom={setZoom}
-            setPan={setPan}
-            lang={lang}
-          />
+          {viewMode === "2d" ? (
+            <Board
+              state={state}
+              controller={controller}
+              tool={tool}
+              color={color}
+              side={side}
+              selectedId={selectedId}
+              onSelect={setSelectedId}
+              zoom={zoom}
+              pan={pan}
+              setZoom={setZoom}
+              setPan={setPan}
+              lang={lang}
+            />
+          ) : (
+            <Suspense
+              fallback={
+                <div className="board3d-loading">
+                  <Loader2 size={20} className="spin" /> {t.loading3d}
+                </div>
+              }
+            >
+              <Board3D state={state} selectedId={selectedId} lang={lang} />
+            </Suspense>
+          )}
           <footer className="statusbar">
             <span className="status-tool">
               {t.statusTool} {toolLabel(lang, tool)}

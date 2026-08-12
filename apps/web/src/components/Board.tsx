@@ -214,7 +214,11 @@ export default function Board({
   const onPointerDown = (e: React.PointerEvent) => {
     const svg = svgRef.current;
     if (!svg) return;
-    svg.setPointerCapture(e.pointerId);
+    try {
+      svg.setPointerCapture(e.pointerId);
+    } catch {
+      // pointer já não está ativo (ex.: eventos sintéticos/captura perdida) — segue sem captura
+    }
     const p = toMeters(e);
 
     // pan: botão do meio ou Shift + botão esquerdo — impede o autoscroll nativo
@@ -317,11 +321,20 @@ export default function Board({
     const g = gestureRef.current;
 
     if (g.kind === "pan") {
-      // p já está em unidades do viewBox; o delta é direto (sem multiplicar por zoom)
-      // (a posição é absoluta a partir do início do gesto, então não acumula erro)
+      // encerra o pan se o botão do meio (ou Shift) já foi solto — evita "gesto preso"
+      // quando o pointerup se perde (ex.: soltar fora da janela/autoscroll do navegador)
+      const middleHeld = (e.buttons & 4) !== 0;
+      const shiftLeftHeld = e.shiftKey && (e.buttons & 1) !== 0;
+      if (!middleHeld && !shiftLeftHeld) {
+        setGesture({ kind: "idle" });
+        return;
+      }
+      // mantém o ponto sob o cursor fixo: o mundo deve seguir o arrasto.
+      // novoPan = from − p (não p − from) — o sinal errado faz o campo correr
+      // para o lado oposto e acumular aceleração a cada pointermove.
       setPan({
-        x: pan.x + (p.x - g.from.x),
-        y: pan.y + (p.y - g.from.y),
+        x: pan.x + (g.from.x - p.x),
+        y: pan.y + (g.from.y - p.y),
       });
       return;
     }
@@ -449,6 +462,7 @@ export default function Board({
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
+        onPointerCancel={() => setGesture({ kind: "idle" })}
         onContextMenu={onContextMenu}
         onMouseDown={(e) => {
           if (e.button === 1) e.preventDefault();

@@ -1,67 +1,72 @@
-# TATICO — Quadro Tático 11v11 com acesso via MCP
+# TATICO — 11v11 Tactical Board with MCP access
 
-Clone funcional do [tactical-board.com/pt/big-football-vertical](https://tactical-board.com/pt/big-football-vertical):
-quadro tático de futebol 11v11 (campo vertical ~105×68 m) com **acesso total via MCP** —
-qualquer IA (Claude Desktop, Cursor, VS Code, etc.) pode ver e **editar o quadro ao vivo**.
+A functional clone of [tactical-board.com/big-football-vertical](https://tactical-board.com/big-football-vertical):
+an 11v11 football tactical board (vertical pitch ~105×68 m) with **full MCP access** —
+any AI (Claude Desktop, Cursor, VS Code, etc.) can see and **edit the board live**.
 
-> ⚠️ Implementação original, criada do zero (SVG próprio, lógica própria). Nenhum código ou
-> asset do site original foi copiado — apenas as funcionalidades foram reproduzidas.
+> ⚠️ Original implementation, built from scratch (own SVG engine, own logic). No code or
+> asset from the original site was copied — only the features were reproduced.
 
-## Funcionalidades
+## Features
 
-**Quadro (app web — `apps/web`)**
-- Campo de futebol 11v11 vertical com todas as marcações (áreas, pênalti, círculo central, arcos)
-- Jogadores arrastáveis com número, nome e cor (2 times: casa/fora)
-- Formações prontas: 4-3-3, 4-4-2, 4-2-3-1, 3-5-2, 3-4-3, 5-3-2, 4-1-4-1
-- Desenho de formas: linha, seta, curva (b-spline), retângulo, elipse e texto — 6 cores, tracejado
-- Edição: mover, redimensionar, recolorir, apagar; undo/redo; zoom e pan
-- Exportar PNG (alta resolução) e SVG
-- Salvar/carregar táticas (localStorage ou no servidor MCP)
+**Board (web app — `apps/web`)**
+- Vertical 11v11 football pitch with all markings (penalty areas, penalty spots, arcs, center circle, corner arcs, goal lines)
+- Draggable players with number, name and color (2 teams: home/away)
+- Ready-made formations: 4-3-3, 4-4-2, 4-2-3-1, 3-5-2, 3-4-3, 5-3-2, 4-1-4-1
+- Drawing tools: line, arrow, curve (b-spline), rectangle, ellipse and text — 6 colors, dashed strokes
+- Editing: move, resize, recolor, delete; undo/redo; zoom and pan (mouse-wheel zoom, middle-button or Shift+drag to pan)
+- **3D view mode**: a real three.js scene with orbital camera, 4 camera presets (Default, Top, Side, Behind goal), players as 3D markers and shapes as thick 3D lines — synced live with the 2D board and lazy-loaded so the 3D engine only downloads when you switch to it
+- Per-player tactical instructions (with/without possession)
+- Export PNG (high resolution) and SVG
+- Save/load tactics (localStorage or via the MCP server)
+- i18n: PT-BR / EN-US
+- Accessibility: `aria-label`/`aria-pressed` across controls, `prefers-reduced-motion` support
 
-**IA (servidor MCP — `packages/mcp-server`)** — 23 ferramentas:
+**AI (MCP server — `packages/mcp-server`)** — 24 tools:
 `get_board_state`, `new_board`, `set_title`, `add_player`, `move_player`, `update_player`,
-`remove_player`, `clear_players`, `set_formation`, `add_shape`, `update_shape`, `remove_shape`,
-`clear_shapes`, `undo`, `redo`, `export_svg`, `export_png`, `save_tactic`, `load_tactic`,
-`list_tactics`, `delete_tactic`, `get_board_summary`, `set_pitch_style`
+`update_player_instructions`, `remove_player`, `clear_players`, `set_formation`, `add_shape`,
+`update_shape`, `remove_shape`, `clear_shapes`, `undo`, `redo`, `export_svg`, `export_png`,
+`save_tactic`, `load_tactic`, `list_tactics`, `delete_tactic`, `get_board_summary`,
+`set_pitch_style`
 
-**Sincronização ao vivo**: quando o app web conecta ao servidor MCP, a IA e o navegador
-compartilham o **mesmo estado** — a IA monta um 4-3-3 e o quadro atualiza na hora, e o que
-você desenha no navegador fica visível para a IA via `get_board_state`.
+**Live sync**: when the web app connects to the MCP server, the AI and the browser share the
+**same state** — the AI sets up a 4-3-3 and the board updates instantly, and anything you
+draw in the browser is visible to the AI via `get_board_state`.
 
-## Arquitetura
+## Architecture
 
 ```
 TATICO/
 ├─ packages/
-│  ├─ core/          # motor compartilhado (estado, formações, render SVG) — TS puro
-│  └─ mcp-server/    # servidor MCP: stdio + HTTP/SSE + ponte REST para o app web
+│  ├─ core/          # shared engine (state, formations, SVG rendering) — pure TS
+│  └─ mcp-server/    # MCP server: stdio + HTTP/SSE + REST bridge for the web app
 └─ apps/
-   └─ web/           # app React + Vite (quadro interativo)
+   └─ web/           # React + Vite app (interactive board, 2D + 3D)
 ```
 
-O `core` é a única fonte de verdade do estado (jogadores, formas, versão). O servidor MCP e o
-app web operam sobre a mesma sessão; mudanças de um lado propagam para o outro via SSE.
+`core` is the single source of truth for state (players, shapes, version). The MCP server and
+the web app operate on the same session; changes on one side propagate to the other via SSE.
 
-## Como rodar
+## How to run
 
 ```bash
 npm install
 
-# terminal 1 — app web (http://localhost:5173)
+# terminal 1 — web app (http://localhost:5173)
 npm run dev:web
 
-# terminal 2 — servidor MCP com HTTP + stdio (http://localhost:3001) — necessário p/ sincronizar com a IA
-npm run dev:mcp       # equivale a dev:both (HTTP na porta 3001 + stdio para Claude/Cursor)
+# terminal 2 — MCP server with HTTP + stdio (http://localhost:3001) — required to sync with the AI
+npm run dev:mcp       # equivalent to dev:both (HTTP on port 3001 + stdio for Claude/Cursor)
 ```
 
-No app web: no painel direito, clique em **Conectar** (URL padrão `http://localhost:3001`).
-O status fica verde e a IA passa a ver/editar o quadro.
+In the web app: in the right-hand panel, click **Connect** (default URL `http://localhost:3001`).
+The status turns green and the AI can see/edit the board.
 
-## Conectar a IA via MCP
+## Connect an AI via MCP
 
 ### Claude Desktop
 
-Edite `claude_desktop_config.json` (Claude → Configurações → Developer → Edit Config):
+Edit `claude_desktop_config.json` (Claude → Settings → Developer → Edit Config):
 
 ```json
 {
@@ -75,11 +80,11 @@ Edite `claude_desktop_config.json` (Claude → Configurações → Developer →
 }
 ```
 
-Depois rode `npm run build` (ou `npm run build -w @tattico/mcp-server`) e reinicie o Claude.
+Then run `npm run build` (or `npm run build -w @tattico/mcp-server`) and restart Claude.
 
-> 💡 **Para sincronizar ao vivo com o app web** (a IA vê/edita o MESMO quadro do navegador),
-> use o transporte HTTP em vez do stdio — o Claude Desktop conversa com o mesmo processo
-> que o app web (exija `npm run dev:mcp` rodando):
+> 💡 **For live sync with the web app** (the AI sees/edits the SAME board as the browser),
+> use the HTTP transport instead of stdio — Claude Desktop talks to the same process that
+> the web app connects to (keep `npm run dev:mcp` running):
 >
 > ```json
 > {
@@ -92,11 +97,11 @@ Depois rode `npm run build` (ou `npm run build -w @tattico/mcp-server`) e reinic
 > }
 > ```
 >
-> Com o stdio, cada processo do servidor tem seu próprio quadro (estado separado do app web).
+> With stdio, each server process has its own board (state separate from the web app).
 
 ### Cursor
 
-`.cursor/mcp.json` na raiz do projeto:
+`.cursor/mcp.json` at the project root:
 
 ```json
 {
@@ -110,30 +115,41 @@ Depois rode `npm run build` (ou `npm run build -w @tattico/mcp-server`) e reinic
 }
 ```
 
-### Outros clientes (transporte HTTP)
+### Other clients (HTTP transport)
 
-O servidor também expõe MCP em `POST /mcp` (streamable HTTP) e `GET /mcp/sse` — aponte o
-cliente para `http://localhost:3001/mcp`.
+The server also exposes MCP at `POST /mcp` (streamable HTTP) and `GET /mcp/sse` — point your
+client at `http://localhost:3001/mcp`.
 
-### Exemplos de prompts para a IA
+### Example prompts for the AI
 
-> "Monte o time da casa em 4-3-3 com o centroavante mais avançado."
-> "Desenhe uma seta do lateral esquerdo até o ponta esquerda."
-> "Exporte o quadro como PNG."
+> "Set up the home team in a 4-3-3 with the striker pushed highest."
+> "Draw an arrow from the left-back to the left winger."
+> "Export the board as PNG."
 
-## Scripts úteis
+## Useful scripts
 
-| Comando | O que faz |
+| Command | What it does |
 |---|---|
-| `npm run dev:web` | App web em http://localhost:5173 |
-| `npm run dev:http` | Servidor MCP HTTP (porta 3001) |
-| `npm run dev:mcp` | Servidor MCP stdio + HTTP (porta 3001) — o que o app web precisa para Conectar |
-| `npm run build` | Compila web + servidor |
-| `npm run typecheck` | Typecheck de todos os pacotes |
-| `npm run smoke` | Smoke test do core/servidor |
+| `npm run dev:web` | Web app at http://localhost:5173 |
+| `npm run dev:http` | MCP server over HTTP (port 3001) |
+| `npm run dev:mcp` | MCP server stdio + HTTP (port 3001) — what the web app needs to Connect |
+| `npm run build` | Builds web + server |
+| `npm run typecheck` | Typechecks all packages |
+| `npm run smoke` | Smoke test for core/server |
 
-## Próximos passos sugeridos
+## Roadmap — missing features
 
-- Animações por keyframes + exportação de vídeo (como o site original)
-- Compartilhamento por link e colaboração em tempo real
-- Outros esportes (futsal, basquete, etc.)
+**3D view (view-only today)**
+- [ ] Edit directly in 3D (raycasting to place players and draw shapes on the pitch)
+- [ ] Export the 3D view as PNG (client-side canvas capture)
+- [ ] Camera sync between 2D and 3D modes (same viewport when switching)
+
+**Presentation & sharing**
+- [ ] Keyframe animations + video export (like the original site)
+- [ ] Share via link and real-time collaboration
+- [ ] Pitch style editor in the UI (colors/background — currently only via `set_pitch_style` for exports)
+
+**Content & quality**
+- [ ] Custom (user-defined) formations
+- [ ] Other sports (futsal, basketball, etc.)
+- [ ] Automated test suite (unit + end-to-end)

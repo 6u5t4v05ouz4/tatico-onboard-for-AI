@@ -81,6 +81,19 @@ export interface Dict {
   zoomOut: string;
   fit: string;
   colors: Record<string, string>;
+  // modo de visualização (2D/3D)
+  groupView: string;
+  view2d: string;
+  view2dHint: string;
+  view3d: string;
+  view3dHint: string;
+  loading3d: string;
+  board3dAria: string;
+  presetDefault: string;
+  presetTop: string;
+  presetSide: string;
+  presetGoal: string;
+  view3dHintOrbit: string;
   // sidebar — MCP
   panelMcp: string;
   mcpConnected: string;
@@ -182,6 +195,19 @@ const pt: Dict = {
   zoomIn: "Aproximar",
   zoomOut: "Afastar",
   fit: "Ajustar à tela",
+  // modo de visualização
+  groupView: "Vista",
+  view2d: "2D",
+  view2dHint: "Vista 2D clássica — edição do quadro",
+  view3d: "3D",
+  view3dHint: "Vista 3D — arraste para orbitar a câmera",
+  loading3d: "Carregando modo 3D…",
+  board3dAria: "Quadro tático em 3D — visualização com câmera orbital",
+  presetDefault: "Padrão",
+  presetTop: "Superior",
+  presetSide: "Lateral",
+  presetGoal: "Atrás do gol",
+  view3dHintOrbit: "Arraste para orbitar · Scroll para zoom · Botão do meio ou direito arrasta para mover",
   colors: {
     red: "Vermelho",
     blue: "Azul",
@@ -308,6 +334,19 @@ const en: Dict = {
   zoomIn: "Zoom in",
   zoomOut: "Zoom out",
   fit: "Fit to screen",
+  // view mode
+  groupView: "View",
+  view2d: "2D",
+  view2dHint: "Classic 2D top-down view — editing",
+  view3d: "3D",
+  view3dHint: "3D view — drag to orbit the camera",
+  loading3d: "Loading 3D view…",
+  board3dAria: "3D tactical board — orbital camera visualization",
+  presetDefault: "Default",
+  presetTop: "Top",
+  presetSide: "Side",
+  presetGoal: "Behind goal",
+  view3dHintOrbit: "Drag to orbit · Scroll to zoom · Middle or right-drag to pan",
   colors: {
     red: "Red",
     blue: "Blue",

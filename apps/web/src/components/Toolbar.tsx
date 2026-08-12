@@ -1,6 +1,8 @@
 import {
+  Box,
   Circle,
   Eraser,
+  LayoutGrid,
   Maximize,
   MousePointer2,
   MoveUpRight,
@@ -20,6 +22,8 @@ import { ui, type Lang } from "../lib/i18n";
 import type { ToolId } from "./Board";
 import { getTools } from "./Board";
 
+export type ViewMode = "2d" | "3d";
+
 interface ToolbarProps {
   tool: ToolId;
   setTool: (t: ToolId) => void;
@@ -36,6 +40,8 @@ interface ToolbarProps {
   zoom: number;
   setZoom: (z: number) => void;
   onFit: () => void;
+  viewMode: ViewMode;
+  setViewMode: (v: ViewMode) => void;
 }
 
 const TOOL_ICONS: Record<ToolId, React.ComponentType<{ size?: number | string; className?: string }>> = {
@@ -65,12 +71,38 @@ export default function Toolbar({
   zoom,
   setZoom,
   onFit,
+  viewMode,
+  setViewMode,
 }: ToolbarProps) {
   const t = ui(lang);
   const tools = getTools(lang);
   return (
     <div className="floating-toolbar-wrapper">
       <aside className="floating-toolbar">
+        {/* Modo de visualização: 2D (edição) | 3D (visualização) */}
+        <div className="toolbar-group horizontal team-segmented" title={t.groupView}>
+          <button
+            className={`side-btn ${viewMode === "2d" ? "active" : ""}`}
+            onClick={() => setViewMode("2d")}
+            title={t.view2dHint}
+            aria-pressed={viewMode === "2d"}
+          >
+            <LayoutGrid size={14} />
+            <span className="side-label">{t.view2d}</span>
+          </button>
+          <button
+            className={`side-btn ${viewMode === "3d" ? "active" : ""}`}
+            onClick={() => setViewMode("3d")}
+            title={t.view3dHint}
+            aria-pressed={viewMode === "3d"}
+          >
+            <Box size={14} />
+            <span className="side-label">{t.view3d}</span>
+          </button>
+        </div>
+
+        <div className="toolbar-divider" />
+
         {/* Ferramentas de Seleção e Desenho */}
         <div className="toolbar-group horizontal" title={t.groupTools}>
           {tools.map((toolInfo) => {
