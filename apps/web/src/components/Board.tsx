@@ -42,6 +42,7 @@ interface BoardProps {
   pan: Pt;
   setZoom: (z: number) => void;
   setPan: (p: Pt) => void;
+  lang: Lang;
 }
 
 type Gesture =
@@ -82,7 +83,9 @@ export default function Board({
   pan,
   setZoom,
   setPan,
+  lang,
 }: BoardProps) {
+  const t = ui(lang);
   const svgRef = useRef<SVGSVGElement>(null);
   const [gesture, setGesture] = useState<Gesture>({ kind: "idle" });
   const gestureRef = useRef<Gesture>({ kind: "idle" });
@@ -425,12 +428,24 @@ export default function Board({
         }
       : null;
 
+  const isEmpty = state.players.length === 0 && state.shapes.length === 0;
+
   return (
     <div className="board-stage">
+      {isEmpty && (
+        <div className="board-empty">
+          <div className="board-empty-inner">
+            <strong>{t.boardEmptyTitle}</strong>
+            {t.boardEmptyText}
+          </div>
+        </div>
+      )}
       <svg
         ref={svgRef}
         className="board-svg"
         viewBox={`${pan.x} ${pan.y} ${VIEW_W / zoom} ${VIEW_H / zoom}`}
+        role="img"
+        aria-label={t.boardAriaLabel}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}

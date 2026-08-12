@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FolderOpen, RefreshCw, Save, Trash2, Wifi } from "lucide-react";
+import { FolderOpen, RefreshCw, Save, Shield, Target, Trash2, Wifi } from "lucide-react";
 import { FORMATIONS, PALETTE, TEAM_COLORS } from "@tattico/core";
 import type { BoardState, Player, Shape, Side } from "@tattico/core";
 import { ui, type Lang } from "../lib/i18n";
@@ -127,7 +127,12 @@ export default function Sidebar(props: SidebarProps) {
               <button className="tactic-name" onClick={() => onLoadTactic(tactic.name)} title={t.loadTactic}>
                 {tactic.name}
               </button>
-              <button className="icon-btn danger" onClick={() => onDeleteTactic(tactic.name)} title={t.deleteTactic}>
+              <button
+                className="icon-btn danger"
+                onClick={() => onDeleteTactic(tactic.name)}
+                title={t.deleteTactic}
+                aria-label={t.deleteTactic}
+              >
                 <Trash2 size={14} />
               </button>
             </li>
@@ -200,17 +205,23 @@ export default function Sidebar(props: SidebarProps) {
                   className={`swatch ${selectedPlayer.color === c.value ? "active" : ""}`}
                   style={{ background: c.value }}
                   title={t.colors[c.id] ?? c.name}
+                  aria-label={t.colors[c.id] ?? c.name}
+                  aria-pressed={selectedPlayer.color === c.value}
                   onClick={() => onUpdatePlayer(selectedPlayer.id, { color: c.value })}
                 />
               ))}
               <button
                 className={`swatch ${selectedPlayer.color === TEAM_COLORS.home ? "active" : ""}`}
                 style={{ background: TEAM_COLORS.home }}
+                aria-label={t.sideHome}
+                aria-pressed={selectedPlayer.color === TEAM_COLORS.home}
                 onClick={() => onUpdatePlayer(selectedPlayer.id, { color: TEAM_COLORS.home })}
               />
               <button
                 className={`swatch ${selectedPlayer.color === TEAM_COLORS.away ? "active" : ""}`}
                 style={{ background: TEAM_COLORS.away }}
+                aria-label={t.sideAway}
+                aria-pressed={selectedPlayer.color === TEAM_COLORS.away}
                 onClick={() => onUpdatePlayer(selectedPlayer.id, { color: TEAM_COLORS.away })}
               />
             </div>
@@ -218,7 +229,9 @@ export default function Sidebar(props: SidebarProps) {
           <div className="field instructions-field">
             <label>{t.instructionsTitle}</label>
             <div className="instruction-box">
-              <span className="phase-tag phase-with">{t.withBall}</span>
+              <span className="phase-tag phase-with">
+                <Target size={12} /> {t.withBall}
+              </span>
               <textarea
                 className="textarea"
                 rows={4}
@@ -228,7 +241,9 @@ export default function Sidebar(props: SidebarProps) {
               />
             </div>
             <div className="instruction-box">
-              <span className="phase-tag phase-without">{t.withoutBall}</span>
+              <span className="phase-tag phase-without">
+                <Shield size={12} /> {t.withoutBall}
+              </span>
               <textarea
                 className="textarea"
                 rows={4}
@@ -272,12 +287,16 @@ export default function Sidebar(props: SidebarProps) {
                   className={`swatch ${selectedShape.color === c.value ? "active" : ""}`}
                   style={{ background: c.value }}
                   title={t.colors[c.id] ?? c.name}
+                  aria-label={t.colors[c.id] ?? c.name}
+                  aria-pressed={selectedShape.color === c.value}
                   onClick={() => onUpdateShape(selectedShape.id, { color: c.value })}
                 />
               ))}
               <button
                 className={`swatch ${selectedShape.color === "#ffffff" ? "active" : ""}`}
                 style={{ background: "#ffffff" }}
+                aria-label={t.white}
+                aria-pressed={selectedShape.color === "#ffffff"}
                 onClick={() => onUpdateShape(selectedShape.id, { color: "#ffffff" })}
               />
             </div>

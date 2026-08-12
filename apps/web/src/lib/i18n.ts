@@ -58,6 +58,10 @@ export interface Dict {
   statusMcpConnecting: string;
   statusMcpError: string;
   statusMcpOff: string;
+  // board
+  boardAriaLabel: string;
+  boardEmptyTitle: string;
+  boardEmptyText: string;
   // ferramentas (labels + hints)
   tools: { id: string; label: string; hint: string }[];
   // toolbar
@@ -144,10 +148,13 @@ const pt: Dict = {
   exportPngTitle: "Baixar imagem PNG em alta resolução",
   // statusbar
   statusTool: "Ferramenta:",
-  statusMcpConnected: "● IA conectada (MCP)",
-  statusMcpConnecting: "◌ Conectando à IA…",
-  statusMcpError: "✕ Servidor MCP inacessível",
-  statusMcpOff: "○ Modo local — sem IA",
+  statusMcpConnected: "IA conectada (MCP)",
+  statusMcpConnecting: "Conectando à IA…",
+  statusMcpError: "Servidor MCP inacessível",
+  statusMcpOff: "Modo local — sem IA",
+  boardAriaLabel: "Quadro tático interativo",
+  boardEmptyTitle: "Quadro vazio",
+  boardEmptyText: "Escolha uma ferramenta à esquerda (Jogador, Seta, Curva…) e desenhe direto no campo.",
   // ferramentas
   tools: [
     { id: "select", label: "Selecionar", hint: "Clique para selecionar, arraste para mover" },
@@ -216,8 +223,8 @@ const pt: Dict = {
   fieldNumber: "Número",
   fieldColor: "Cor",
   instructionsTitle: "Instruções táticas",
-  withBall: "⚽ Com posse",
-  withoutBall: "🛡 Sem posse",
+  withBall: "Com posse",
+  withoutBall: "Sem posse",
   withBallPlaceholder:
     "Como este jogador deve atuar quando o time tem a bola (posicionamento, movimentação, passes, finalização)…",
   withoutBallPlaceholder:
@@ -267,10 +274,13 @@ const en: Dict = {
   exportPngTitle: "Download high-resolution PNG image",
   // statusbar
   statusTool: "Tool:",
-  statusMcpConnected: "● AI connected (MCP)",
-  statusMcpConnecting: "◌ Connecting to AI…",
-  statusMcpError: "✕ MCP server unreachable",
-  statusMcpOff: "○ Local mode — no AI",
+  statusMcpConnected: "AI connected (MCP)",
+  statusMcpConnecting: "Connecting to AI…",
+  statusMcpError: "MCP server unreachable",
+  statusMcpOff: "Local mode — no AI",
+  boardAriaLabel: "Interactive tactical board",
+  boardEmptyTitle: "Empty board",
+  boardEmptyText: "Pick a tool on the left (Player, Arrow, Curve…) and draw directly on the pitch.",
   // tools
   tools: [
     { id: "select", label: "Select", hint: "Click to select, drag to move" },
@@ -339,8 +349,8 @@ const en: Dict = {
   fieldNumber: "Number",
   fieldColor: "Color",
   instructionsTitle: "Tactical instructions",
-  withBall: "⚽ With possession",
-  withoutBall: "🛡 Without possession",
+  withBall: "With possession",
+  withoutBall: "Without possession",
   withBallPlaceholder:
     "How this player should act when the team has the ball (positioning, movement, passing, finishing)…",
   withoutBallPlaceholder:

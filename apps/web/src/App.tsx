@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Download, FilePlus2, ImageDown } from "lucide-react";
+import { AlertCircle, Download, FilePlus2, ImageDown, Loader2, Wifi, WifiOff } from "lucide-react";
 import { BoardController, BOARD_PAD } from "@tattico/core";
 import type { BoardState, Side } from "@tattico/core";
 import Board, { type ToolId } from "./components/Board";
@@ -269,6 +269,7 @@ export default function App() {
               key={l.id}
               className={lang === l.id ? "active" : ""}
               onClick={() => setLang(l.id)}
+              aria-pressed={lang === l.id}
             >
               {l.label}
             </button>
@@ -294,24 +295,24 @@ export default function App() {
       </header>
 
       <div className="main">
-        <Toolbar
-          tool={tool}
-          setTool={setTool}
-          color={color}
-          setColor={setColor}
-          side={side}
-          setSide={setSide}
-          lang={lang}
-          onUndo={() => controller.undo()}
-          onRedo={() => controller.redo()}
-          canUndo={controller.canUndo}
-          canRedo={controller.canRedo}
-          onClearBoard={handleClearBoard}
-          zoom={zoom}
-          setZoom={setZoom}
-          onFit={onFit}
-        />
         <main className="board-area">
+          <Toolbar
+            tool={tool}
+            setTool={setTool}
+            color={color}
+            setColor={setColor}
+            side={side}
+            setSide={setSide}
+            lang={lang}
+            onUndo={() => controller.undo()}
+            onRedo={() => controller.redo()}
+            canUndo={controller.canUndo}
+            canRedo={controller.canRedo}
+            onClearBoard={handleClearBoard}
+            zoom={zoom}
+            setZoom={setZoom}
+            onFit={onFit}
+          />
           <Board
             state={state}
             controller={controller}
@@ -324,16 +325,33 @@ export default function App() {
             pan={pan}
             setZoom={setZoom}
             setPan={setPan}
+            lang={lang}
           />
           <footer className="statusbar">
             <span className="status-tool">
               {t.statusTool} {toolLabel(lang, tool)}
             </span>
             <span className={`status-mcp ${mcpStatus}`}>
-              {mcpStatus === "connected" && t.statusMcpConnected}
-              {mcpStatus === "connecting" && t.statusMcpConnecting}
-              {mcpStatus === "error" && t.statusMcpError}
-              {mcpStatus === "off" && t.statusMcpOff}
+              {mcpStatus === "connected" && (
+                <>
+                  <Wifi size={13} /> {t.statusMcpConnected}
+                </>
+              )}
+              {mcpStatus === "connecting" && (
+                <>
+                  <Loader2 size={13} className="spin" /> {t.statusMcpConnecting}
+                </>
+              )}
+              {mcpStatus === "error" && (
+                <>
+                  <AlertCircle size={13} /> {t.statusMcpError}
+                </>
+              )}
+              {mcpStatus === "off" && (
+                <>
+                  <WifiOff size={13} /> {t.statusMcpOff}
+                </>
+              )}
             </span>
             <span className="status-version">v{state.version}</span>
           </footer>
